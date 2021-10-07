@@ -1,0 +1,35 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+{% block inside %}
+{% endblock %}
+<ul class="list-group">
+    {% for listing in listings%}
+    <li class="list-group-item list-group-item-light" style="border: 10px;">
+<div class="card card border-info mb-3" style="width: 18rem;">
+    {%if listing.image.url is not None %}
+    <img src="{{ listing.image.url }} " class="card-img-top" alt="...">
+    {%else%}
+    {% load static %} 
+    <img src="{% static "auctions/media/image.png" %}" class="card-img-top" alt="...">
+    {%endif%}
+    <div class="card-body">
+      <h5 class="card-title">{{ listing.title }}</h5>
+      <p class="card-text">{{ listing.desc }}</p>
+      <p class="card-text"><p>Current price: ${{ listing.startingBid }}</p>
+      <a href="{% url 'listing' listing.id %}" class="btn btn-primary">View Listing</a>
+      {%if not listing.active %}
+      <button class="btn btn-success" disabled > Sold!</button>
+      {%endif%}
+    </div>
+</div>
+</li>
+{% empty %}
+<li>
+    No listings here.
+</li>
+{% endfor %}
+</ul>
+  
+
+{% endblock %}

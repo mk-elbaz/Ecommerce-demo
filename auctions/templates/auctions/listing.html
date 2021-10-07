@@ -1,0 +1,123 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    
+    <h2 class="card-header" style="margin-bottom: 20px; text-align: center;">{{ listing.title }}</h2>
+
+
+        {% if listing.listingOwner == user and listing.active  %}
+            <div>
+                <a href="{% url 'closeListing' listing.id  %}" class="btn btn-danger" >
+                    Close Listing
+                </a>
+            </div>
+        {%elif listing.winner == user and not listing.active%}
+        <div class="alert alert-success" role="alert">
+            <h4 class="alert-heading" >Congrats!</h4>
+                <p>You won the bid on this item!</p>            
+          </div>
+        {%elif listing.listingOwner != user and listing.active%}
+            <div>
+                <a href="{% url 'watchlistAdd' listing.id  %}" >
+                    {% if listing.watch %}
+                        <span class="btn btn-danger"> Remove from my WatchList </span>
+                    {% else %}
+                        <span class="btn btn-success"> Add to my WatchList </span>
+                    {% endif %}
+                </a>
+            </div>
+        
+        {%endif%}
+        
+    <div style="padding-top: 10px;">
+
+        {%if listing.image.url is not None %}
+        <img src="{{ listing.image.url }} " class="img-responsive card border-primary mb-3" style="width: 18rem; height: auto" >
+        {%else%}
+        {% load static %} 
+        <img src="{% static "auctions/media/image.png" %}" class="card border-primary mb-3" style="width: 18rem; height: auto"/>
+        {%endif%}
+    </div>
+
+
+    <div style="margin-top: 15px;">
+        <div class="card" style="width: 18rem;">
+            <div class="card-body">
+              <h5 class="card-title">{{ listing.title }}</h5>
+              <h6 class="card-subtitle mb-2 text-muted">
+                {%if listing.active%}
+                Current bid: ${{ listing.startingBid }}
+                {%else%}
+                Sold for: ${{ listing.startingBid }}
+                {%endif%}
+            </h6>
+            <h6 class="card-subtitle mb-2 text-muted">
+                Owner: {{ listing.listingOwner }}
+            </h6>
+              <p class="card-text">{{ listing.desc }}</p>
+            </div>
+          </div>
+
+        
+    <div style="margin-top: 20px;"> 
+        {%if message != ""%}
+        <div class="alert alert-danger" role="alert">
+            {{ message }}
+          </div>
+        {%endif%}
+        {%if listing.active%}
+        <div class="card text-dark bg-light mb-3 card border-primary mb-3" style="max-width: 18rem;">
+            <div class="card-header"> Current highest bidder: {{ listing.buyer }}</div>
+            <div class="card-body">
+              {% if listing.listingOwner != user %}
+              <h5 class="card-title">Place Bid:</h5>
+                <form action="{% url 'listing' listing.id  %}" method="POST">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        {{ form }}
+                    </div>
+                    <input type="submit" value="Place Bid" class="btn btn-dark">
+                </form>
+            {%endif%}
+            </div>
+        {%else%}
+        <div class="alert alert-info">
+            Bid winner: {{ listing.winner }}
+        </div> 
+        {% endif %}
+
+        
+    </div>
+
+    <div>
+        <h4 class="card text-white bg-primary mb-3" style="margin-bottom: 10px;">Comments:</h4>
+            {% if listing.active %}
+                <div class="form-group">
+                    <form action="{% url 'listing' listing.id %}" method="post" >
+                        {% csrf_token %}
+                        {{ comment_form }}        
+                        <input type = submit class="btn btn-primary" style="margin-top: 10px; margin-bottom: 10px;" value="Comment" type="submit">
+                    </form>                    
+                </div>            
+            {% endif %}
+            
+            {% for comment in comments %}        
+            <div class="row" style="margin-bottom: 10px;">
+                <div class="col-sm-3">
+                  <div class="card card-body bg-light">
+                   <p>{{ comment.author }} @ {{ comment.timeAdded }} :</p> 
+                  </div>
+                </div>
+                <div class="col-sm-9">
+                  <div class="card card-body bg-light">
+                    <p style="text-align: left;">{{ comment.text }}</p>
+                </div>
+                </div>
+              </div>
+            {% if empty %}
+                No comments yet, be the first!
+            {% endif %}
+            {% endfor %}
+    </div>
+
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends "auctions/auctionLists.html" %}
+
+{% block inside %}
+{% if category != 'None' %}
+<h2>{{ category}}:</h2>
+{%else%}
+<h2>Other:</h2>
+{%endif%}
+
+  
+
+{% endblock %}
